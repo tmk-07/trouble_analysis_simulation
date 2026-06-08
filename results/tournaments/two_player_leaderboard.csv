@@ -1,0 +1,6 @@
+player_count,strategy,appearances,wins,win_rate,total_games,avg_turns,max_turns_observed,first_player_win_rate,no_winner_rate
+2,random,1200,219,0.1825,3000,81.67583333333333,167,0.503,0.0
+2,furthest,1200,468,0.39,3000,73.03333333333333,122,0.503,0.0
+2,double_capture_furthest,1200,774,0.645,3000,81.2075,168,0.503,0.0
+2,capture_double_furthest,1200,838,0.6983333333333334,3000,81.62,168,0.503,0.0
+2,conservative,1200,701,0.5841666666666666,3000,81.095,148,0.503,0.0

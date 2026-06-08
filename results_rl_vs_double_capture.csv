@@ -1,0 +1,8 @@
+matchup,num_games,avg_turns,max_turns_observed,Blue_win_rate,Red_win_rate,Green_win_rate,Yellow_win_rate
+Blue vs Red,1000,82.1730,156,48.3000,51.7000,0.0000,0.0000
+Blue vs Green,1000,82.0450,140,46.8000,0.0000,53.2000,0.0000
+Blue vs Yellow,1000,79.0580,130,43.0000,0.0000,0.0000,57.0000
+Blue vs Red vs Green,1000,155.7620,289,33.4000,38.0000,28.6000,0.0000
+Blue vs Red vs Yellow,1000,154.6890,317,38.5000,30.2000,0.0000,31.3000
+Blue vs Green vs Yellow,1000,153.9180,304,31.6000,0.0000,34.9000,33.5000
+Blue vs Red vs Green vs Yellow,1000,266.4230,621,29.8000,24.0000,23.6000,22.6000
