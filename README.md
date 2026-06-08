@@ -1,182 +1,129 @@
 # Trouble Strategy Simulator
 
-A Python simulation engine for studying turn order, board position, and move-selection strategy in the board game **Trouble**.
+A Python-based simulation and strategy analysis project for the board game **Trouble**. This project models game rules, runs large-scale simulations, compares different strategies, visualizes matches, and includes a feature-based reinforcement learning bot trained against strong heuristic opponents.
 
-The current version models a simplified Trouble-style game with fixed color start positions, dice rolls, captures, extra-turn spaces, finishing after one full lap, and interchangeable strategy functions.
+## Project Rundown
 
-## Project Goals
+For a more detailed explanation of how the project developed, including design decisions, training experiments, findings, and conclusions, see the full project writeup:
 
-This project investigates questions like:
+[View Project Rundown PDF](docs/project-rundown.pdf)
 
-- Does the first player have a measurable advantage?
-- Do certain starting positions perform better than others?
-- How much does move strategy affect long-term win percentage?
-- Can stronger strategies be discovered through simulation, Monte Carlo search, or self-play?
+## Features
 
-## Current Features
+### Core Game Engine
 
-- Fixed color starting positions:
-  - Blue: 0
-  - Red: 7
-  - Green: 14
-  - Yellow: 21
-- 28-space circular board
-- 4 pieces per player
-- No 6 required to leave home
-- Captures send opponent pieces back home
-- No stacking on your own pieces
-- Extra turn for landing on a double spot
-- Simplified finish rule: a piece is done after one full lap
-- Strategy system separated from the game engine
-- Batch experiment runner for multiple matchups
-- Terminal table output
-- Optional CSV export
+* Simulates Trouble games with 2, 3, or 4 players
+* Tracks board position, piece progress, home pieces, completed pieces, captures, and turn order
+* Supports multiple player colors: Blue, Red, Green, and Yellow
+* Handles legal move generation for each dice roll
+* Supports captures and sends captured pieces back home
+* Supports double spots that grant extra turns
+* Detects winners automatically when all pieces are finished
+* Allows customizable maximum turn limits to prevent endless simulations
 
-## Project Structure
+### Strategy System
 
-```text
-trouble_strategy_simulator/
-│
-├── main.py
-├── README.md
-├── requirements.txt
-├── .gitignore
-│
-└── trouble_sim/
-    ├── __init__.py
-    ├── constants.py
-    ├── game_state.py
-    ├── engine.py
-    ├── strategies.py
-    ├── ascii_board.py
-    └── experiments.py
-```
+The project includes several built-in strategies that can be assigned to different players:
 
-## How to Run
+* `random` — chooses randomly from all legal moves
+* `furthest` — moves the piece with the most progress
+* `double_capture_furthest` — prioritizes landing on double spots, then captures, then progress
+* `capture_double_furthest` — prioritizes captures, then double spots, then progress
+* `conservative` — uses safer move choices to reduce capture risk
+* `rl_bot` — uses learned feature weights from reinforcement learning training
 
-From the project folder:
+This strategy system makes it easy to test different decision-making styles against one another.
 
-```bash
-python main.py
-```
+### Monte Carlo Simulation
 
-This runs several matchups and prints a results table.
+* Runs large batches of simulated games
+* Calculates win rates across thousands of trials
+* Measures average game length
+* Compares performance across player counts
+* Supports repeated simulations for more reliable results
+* Outputs results to CSV files for analysis
 
-Example matchups are defined in `main.py`:
+### Tournament Evaluation
 
-```python
-MATCHUPS = [
-    ["Blue", "Red"],
-    ["Blue", "Green"],
-    ["Blue", "Yellow"],
-    ["Green", "Blue"],
-    ["Yellow", "Blue"],
-    ["Blue", "Red", "Green"],
-    ["Blue", "Red", "Green", "Yellow"],
-]
-```
+* Runs strategy tournaments across different player counts
+* Supports 2-player, 3-player, and 4-player matchups
+* Compares strategies across many game combinations
+* Produces leaderboard-style results
+* Generates matchup and profile summaries
+* Supports head-to-head testing for 2-player strategy comparisons
 
-## Example Output
+### Reinforcement Learning Bot
 
-```text
-Simulation Results
-===============================================================================================
-Matchup                       | Games | Avg Turns | Max Turns | Blue Win % | Red Win % | Green Win % | Yellow Win % | No winner Win %
-------------------------------------------------------------------------------------------------
-Blue vs Red                   | 10000 | 83.42     | 219       | 52.31      | 47.69     | -           | -            | 0.00
-Blue vs Green                 | 10000 | 84.05     | 236       | 51.87      | -         | 48.13       | -            | 0.00
-Blue vs Red vs Green          | 10000 | 102.27    | 301       | 34.91      | 32.40     | 32.69       | -            | 0.00
-```
+The project includes a custom reinforcement learning agent that learns how to select moves based on game-state features.
 
-Exact numbers will vary because dice rolls are random.
+The RL bot uses a feature-based policy rather than a neural network. Each legal move is converted into a set of numeric features, and the bot learns weights for those features over many simulated games.
 
-## Strategies
+Features used by the RL bot include:
 
-Strategies live in:
+* finishing a piece
+* capturing an opponent
+* landing on a double spot
+* piece progress
+* danger of being captured
+* danger reduction
+* progress of captured opponent pieces
 
-```text
-trouble_sim/strategies.py
-```
+During training, the bot explores moves using a softmax policy. During testing, the bot runs in evaluation mode and chooses the highest-scoring move based on its learned weights.
 
-Current strategies:
+### RL Training System
 
-```python
-"random"
-"furthest"
-```
+* Trains the RL bot against heuristic opponents
+* Supports batch-based weight updates
+* Tracks reward, win rate, captures, pieces finished, and average turns
+* Saves learned weights to JSON files
+* Saves training history to CSV files
+* Supports continued training from previous weights
+* Supports testing with frozen weights so the bot does not keep learning during evaluation
 
-The default/current strategy is **furthest**, meaning the player always moves the legal piece with the most progress.
+### Bot Testing and Evaluation
 
-## Changing Strategies
+* Tests the trained bot against strong heuristic opponents
+* Runs the bot in `training=False` mode during evaluation
+* Supports balanced testing across turn positions
+* Measures win rate by turn position
+* Compares bot results against the 25% baseline for 4-player games
+* Outputs evaluation results to CSV
 
-In `main.py`, you can assign strategies by color:
+### Data and Results
 
-```python
-strategies_by_color={
-    "Blue": "furthest",
-    "Red": "furthest",
-    "Green": "furthest",
-    "Yellow": "furthest",
-}
-```
+The project can generate:
 
-Later, you can add new strategies such as:
+* tournament leaderboards
+* head-to-head matchup results
+* RL training history
+* bot evaluation summaries
+* win-rate data
+* average turn counts
+* learned feature-weight changes
 
-- capture first
-- finish first
-- double-spot priority
-- scored heuristic
-- Monte Carlo rollout strategy
-- reinforcement learning / self-play strategy
+### Visualization
 
-## Future Work
+The project includes a Pygame-based replay viewer for watching simulated games visually.
 
-Possible next steps:
+The viewer displays:
 
-- Add real Trouble finish lanes
-- Require exact rolls to finish
-- Add more strategy agents
-- Add Monte Carlo move selection
-- Tune heuristic strategy weights through self-play
-- Export full simulation logs
-- Create charts from CSV results
-- Mathematically model matchups as Markov chains
+* board layout
+* player pieces
+* home and finished pieces
+* dice rolls
+* captures
+* current player
+* turn-by-turn game progression
 
-## Pygame Single-Game Replay Viewer
+This was useful for debugging the engine, checking strategy behavior, and making the project easier to demonstrate.
 
-This project includes a simple Pygame replay viewer for watching one simulated game turn by turn.
+## Technologies Used
 
-Install requirements:
-
-```bash
-pip install -r requirements.txt
-```
-
-Run the visual replay:
-
-```bash
-python run_pygame_match.py
-```
-
-Controls:
-
-- `SPACE` or `RIGHT`: next move
-- `LEFT`: previous move
-- `A`: autoplay
-- `R`: simulate a new game with the same matchup/settings
-- `ESC`: quit
-
-You can edit `run_pygame_match.py` to change the matchup or strategies:
-
-```python
-watch_match(
-    players=["Blue", "Green"],
-    strategies_by_color={
-        "Blue": "furthest",
-        "Green": "random",
-    },
-    max_turns=1000,
-)
-```
-
-The replay viewer is intentionally separate from the game engine. The simulator first records replay frames, then Pygame reads those frames so the visualization does not affect game logic.
+* Python
+* Object-oriented programming
+* Monte Carlo simulation
+* CSV data output
+* Matplotlib plotting
+* Pygame visualization
+* Feature-based reinforcement learning
+* Strategy evaluation and tournament analysis
